@@ -36,7 +36,7 @@ export default function Home() {
       ) : (
         <button
           onClick={() => {
-            fetch('http://localhost:8000/auth/x', {
+            fetch('https://alpha-backend-production.up.railway.app/auth/x', {
             credentials: 'include'  // Important for cookies!
           })
             .then(res => res.json())
