@@ -14,6 +14,8 @@ interface UserData {
 export default function Dashboard() {
   const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [posting, setPosting] = useState(false);
+  const [postMessage, setPostMessage] = useState('');
   const [dailyPostsEnabled, setDailyPostsEnabled] = useState(true);
   const [postFrequency, setPostFrequency] = useState('1');
   const router = useRouter();
@@ -87,6 +89,39 @@ export default function Dashboard() {
       );
     } catch (error) {
       console.error('Error updating frequency:', error);
+    }
+  };
+
+  const postNow = async () => {
+    if (!user || posting) return;
+    
+    setPosting(true);
+    setPostMessage('');
+    
+    try {
+      const response = await fetch(
+        `https://alpha-backend-production.up.railway.app/api/user/${user.username}/post-now`,
+        {
+          method: 'POST',
+          credentials: 'include',
+        }
+      );
+      
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.detail || 'Failed to post tweet');
+      }
+      
+      setPostMessage('✅ Tweet posted successfully!');
+      setTimeout(() => setPostMessage(''), 5000);
+      
+    } catch (error: any) {
+      console.error('Error posting tweet:', error);
+      setPostMessage(`❌ ${error.message}`);
+      setTimeout(() => setPostMessage(''), 5000);
+    } finally {
+      setPosting(false);
     }
   };
 
@@ -174,6 +209,41 @@ export default function Dashboard() {
                   <option value="2">2 per day</option>
                   <option value="3">3 per day</option>
                 </select>
+              </div>
+
+              {/* Manual Post Button */}
+              <div className="pt-4 border-t border-gray-200">
+                <button
+                  onClick={postNow}
+                  disabled={posting || !dailyPostsEnabled}
+                  className={`w-full py-3 px-4 rounded-lg font-semibold transition-all ${
+                    posting || !dailyPostsEnabled
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-95'
+                  }`}
+                >
+                  {posting ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Posting...
+                    </span>
+                  ) : (
+                    '🚀 Post Now'
+                  )}
+                </button>
+                {postMessage && (
+                  <p className={`mt-2 text-sm text-center ${postMessage.startsWith('✅') ? 'text-green-600' : 'text-red-600'}`}>
+                    {postMessage}
+                  </p>
+                )}
+                {!dailyPostsEnabled && (
+                  <p className="mt-2 text-xs text-gray-500 text-center">
+                    Enable Daily Posts to use manual posting
+                  </p>
+                )}
               </div>
             </div>
 
