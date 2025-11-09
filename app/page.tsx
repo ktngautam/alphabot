@@ -35,15 +35,30 @@ export default function Home() {
         </div>
       ) : (
         <button
-          onClick={() => {
-            fetch('https://alpha-backend-production.up.railway.app/auth/x/start', {
-            credentials: 'include'  // Important for cookies!
-          })
-            .then(res => res.json())
-            .then(data => window.location.href = data.url)
-            .catch(err => console.error('Error:', err));
+          onClick={async () => {
+                      try {
+                        const res = await fetch('https://alpha-backend-production.up.railway.app/api/auth/x/start', {
+                          credentials: 'include'
+                        });
+                        
+                        if (!res.ok) {
+                          console.error('Backend error:', res.status, res.statusText);
+                          return;
+                        }
+                        
+                        const data = await res.json();
+                        console.log('Backend response:', data); // Debug log
+                        
+                        if (data.url) {
+                          window.location.href = data.url;
+                        } else {
+                          console.error('No URL in response:', data);
+                        }
+                      } catch (err) {
+                        console.error('Error:', err);
+                      }
+                    }}
 
-          }}
           className="bg-white text-black px-8 py-3 rounded-full font-bold text-lg hover:scale-105 transition"
         >
           Connect X to Activate
