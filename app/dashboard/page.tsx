@@ -216,7 +216,7 @@ export default function Dashboard() {
                 <button
                   onClick={postNow}
                   disabled={posting || !dailyPostsEnabled}
-                  className={`w-full py-3 px-4 rounded-lg font-semibold transition-all ${
+                  className={`w-full py-3 px-4 rounded-lg font-semibold transition-all cursor-pointer ${
                     posting || !dailyPostsEnabled
                       ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
                       : 'bg-blue-600 text-white hover:bg-blue-700 active:scale-95'
